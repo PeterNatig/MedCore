@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Repository;
 using Repository.Workflow;
 using Service;
-using Service.Workflow;
 using Service.AI;
+using Service.Workflow;
 
 namespace MedCoreWeb
 {
@@ -24,7 +24,13 @@ namespace MedCoreWeb
             });
             builder.Services.AddDbContextPool<MedCoreDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
+                //options.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("monster"),
+                    sqloptions => sqloptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null
+                        ));
             });
             builder.Services.AddIdentity<User, IdentityRole>(options =>
             {
