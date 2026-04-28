@@ -1,0 +1,24 @@
+@model ViewModel.Doctor.DoctorDashboardVM
+
+@{
+    ViewData["Title"] = "Doctor Dashboard";
+    var doctorEmail = ViewBag.DoctorEmail as string;
+}
+
+<div class="mc-hero mb-4">
+    <h2 class="mb-1">Welcome Dr. @Model.DoctorName</h2>
+    <p class="text-muted mb-0">@Model.SpecialtyName | Manage your schedules, patients, and prescriptions.</p>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-3"><div class="mc-quick blue"><h6>Schedule Slots</h6><h3>@Model.SlotsCount</h3></div></div>
+    <div class="col-md-3"><div class="mc-quick purple"><h6>Appointments</h6><h3>@Model.AppointmentsCount</h3></div></div>
+    <div class="col-md-3"><div class="mc-quick green"><h6>Patients</h6><h3>@Model.PatientsCount</h3></div></div>
+    <div class="col-md-3"><div class="mc-quick @(Model.PendingCount > 0 ? "orange" : "green")"><h6>Pending</h6><h3>@Model.PendingCount</h3></div></div>
+</div>
+
+<div class="mt-4 d-flex gap-2 flex-wrap">
+    <a asp-action="Schedules" asp-route-doctorEmail="@doctorEmail" class="btn btn-primary">Manage Schedules</a>
+    <a asp-action="Patients" asp-route-doctorEmail="@doctorEmail" class="btn btn-outline-primary">Patient Records</a>
+    <a asp-action="ConsultationRoom" asp-route-doctorEmail="@doctorEmail" class="btn btn-outline-success">Consultation Room</a>
+</div>

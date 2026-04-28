@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="mc-hero text-center" data-aos="fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="display-4 fw-bolder mb-3" data-aos="fade-down">
+                The Future of Healthcare <br /> is <span style="color: var(--mc-primary);">Here</span>.
+            </h1>
+            <p class="lead text-muted mb-4" data-aos="fade-up" data-aos-delay="100">
+                MedCore offers smart, seamless workflows for patients and doctors. 
+                Experience a revolutionary system designed to prioritize care, optimize schedules, and enhance well-being.
+            </p>
+            <div class="d-flex justify-content-center gap-3" data-aos="zoom-in" data-aos-delay="200">
+                <a asp-controller="PatientPortal" asp-action="Index" class="btn btn-primary btn-lg rounded-pill px-4 shadow-lg">
+                    <i class="bi bi-search me-2"></i> Find a Doctor
+                </a>
+                @if (!User.Identity?.IsAuthenticated ?? true)
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-light btn-lg rounded-pill px-4 shadow-sm border">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="PatientPortal" asp-action="MyRecords" class="btn btn-light btn-lg rounded-pill px-4 shadow-sm border">
+                        <i class="bi bi-journal-medical me-2"></i> My Records
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="mc-card text-center p-4 h-100">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px; background: var(--mc-primary-light); color: var(--mc-primary); font-size: 1.5rem;">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Easy Scheduling</h5>
+            <p class="text-muted small mb-0">Book appointments with top specialists in seconds. Our real-time calendar prevents conflicts.</p>
+        </div>
+    </div>
+    <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="mc-card text-center p-4 h-100">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px; background: #e0f2fe; color: #0284c7; font-size: 1.5rem;">
+                <i class="bi bi-file-medical"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Digital Records</h5>
+            <p class="text-muted small mb-0">Access your prescriptions, consultation notes, and medical history instantly and securely.</p>
+        </div>
+    </div>
+    <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="mc-card text-center p-4 h-100">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 64px; height: 64px; background: #fef3c7; color: #d97706; font-size: 1.5rem;">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Secure Platform</h5>
+            <p class="text-muted small mb-0">Your privacy is our priority. We employ state-of-the-art encryption to keep your data safe.</p>
+        </div>
+    </div>
+</div>

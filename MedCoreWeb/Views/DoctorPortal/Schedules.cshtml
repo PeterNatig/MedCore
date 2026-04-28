@@ -1,0 +1,95 @@
+@model ViewModel.Doctor.DoctorScheduleVM
+
+@{
+    ViewData["Title"] = "Manage Schedules";
+    var doctorEmail = ViewBag.DoctorEmail as string;
+    var now = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+}
+
+<h2 class="mb-3">Schedule Planner</h2>
+
+<form asp-action="AddSchedule" asp-route-doctorEmail="@doctorEmail" method="post" class="mc-card p-3 row g-2 mb-4">
+    @Html.AntiForgeryToken()
+    <h5 class="mb-2">Add Availability <span class="text-muted fw-normal" style="font-size:.85rem;">(each slot = 30 minutes)</span></h5>
+    <div class="col-md-6">
+        <label asp-for="StartTime" class="form-label">Date & Time</label>
+        <input asp-for="StartTime" type="datetime-local" class="form-control" value="@now" min="@now" />
+    </div>
+    <div class="col-md-6 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary">Add Slot</button>
+    </div>
+</form>
+
+<div class="mc-card p-3">
+@if (!Model.Schedules.Any())
+{
+    <p class="text-muted">No schedule slots added yet.</p>
+}
+else
+{
+<table class="table mc-table">
+    <thead>
+        <tr><th>Date</th><th>Start</th><th>End</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var slot in Model.Schedules)
+        {
+            <tr>
+                <td>@slot.StartTime.ToString("dd MMM yyyy")</td>
+                <td>@slot.StartTime.ToString("hh:mm tt")</td>
+                <td>@slot.EndTime.ToString("hh:mm tt")</td>
+                <td>
+                    @if (slot.IsPast)
+                    {
+                        <span class="badge bg-secondary">Past</span>
+                    }
+                    else
+                    {
+                        <span class="badge @(slot.IsBooked ? "bg-warning text-dark" : "bg-success")">
+                            @(slot.IsBooked ? "Booked" : "Available")
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (!slot.IsBooked && !slot.IsPast)
+                    {
+                        <form asp-action="DeleteSchedule" asp-route-doctorEmail="@doctorEmail" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="scheduleId" value="@slot.ScheduleId" />
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Delete this slot?')">Delete</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+}
+</div>
+
+@section Scripts {
+<script>
+    // Keep the min attribute updated so it always reflects "now"
+    const input = document.querySelector('input[type="datetime-local"]');
+    if (input) {
+        const pad = n => String(n).padStart(2, '0');
+        const updateMin = () => {
+            const d = new Date();
+            input.min = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        };
+        updateMin();
+        setInterval(updateMin, 30000);
+
+        // Prevent form submission if date is in the past
+        input.closest('form').addEventListener('submit', function(e) {
+            if (new Date(input.value) < new Date()) {
+                e.preventDefault();
+                alert('Cannot create a slot in the past. Please select a future date and time.');
+                updateMin();
+                input.value = input.min;
+            }
+        });
+    }
+</script>
+}

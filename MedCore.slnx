@@ -1,3 +1,7 @@
 <Solution>
   <Project Path="MedCore/MedCore.csproj" />
+  <Project Path="MedCoreWeb/MedCoreWeb.csproj" Id="dcff6288-2030-4ecc-af4c-8af941dc87ee" />
+  <Project Path="Repository/Repository.csproj" Id="372d75f8-0dbf-4f8a-9949-19d75d99475b" />
+  <Project Path="Service/Service.csproj" Id="e39cf244-aee4-47e3-b086-5a06c8d5bf3a" />
+  <Project Path="ViewModel/ViewModel.csproj" Id="d8fbbdd1-6735-4ee9-a74e-283b9fca5f78" />
 </Solution>

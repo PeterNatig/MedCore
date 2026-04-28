@@ -1,0 +1,22 @@
+@model ViewModel.Admin.AdminUserPickerVM
+
+@{
+    ViewData["Title"] = "Operate as Patient";
+    ViewData["AdminTitle"] = "Operate as Patient";
+    ViewData["AdminSubtitle"] = "Select a patient account to execute patient workflows.";
+    ViewData["AdminBreadcrumb"] = "Admin / Operate Patient";
+}
+
+<div class="mc-card p-4">
+    <form asp-controller="PatientPortal" asp-action="Index" method="get">
+        <label class="form-label">Select patient account</label>
+        <select class="form-select mb-3" name="patientEmail" required>
+            <option value="">Choose patient</option>
+            @foreach (var pat in Model.Patients)
+            {
+                <option value="@pat.Email">@pat.FullName (@pat.Email)</option>
+            }
+        </select>
+        <button type="submit" class="btn btn-primary">Open Patient Workflow</button>
+    </form>
+</div>

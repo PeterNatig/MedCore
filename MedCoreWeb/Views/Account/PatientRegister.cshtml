@@ -1,0 +1,123 @@
+@model ViewModel.PatientRegisterVM
+
+@{
+    ViewData["Title"] = "Patient Registration";
+}
+
+<div class="mc-auth-wrap py-4">
+    <div class="mc-auth-card" style="max-width:800px;" data-aos="fade-up">
+        <div class="text-center mb-4">
+            <h2 class="fw-bolder mb-1">Join <span style="color: var(--mc-primary);">MedCore</span></h2>
+            <p class="text-muted">Create your patient account to get started with smart healthcare.</p>
+        </div>
+
+        <div class="mc-segment mb-4">
+            <a class="active" asp-action="PatientRegister">
+                <i class="bi bi-person me-1"></i> Patient
+            </a>
+            <a asp-action="DoctorRegister">
+                <i class="bi bi-heart-pulse me-1"></i> Doctor
+            </a>
+        </div>
+
+        <form asp-action="PatientRegister" method="post" data-aos="fade-in" data-aos-delay="100">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3 p-2 rounded"></div>
+            
+            <h5 class="mb-3 border-bottom pb-2 text-muted"><i class="bi bi-person-lines-fill me-2"></i>Personal Details</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="NationalID" class="form-control" placeholder="ID" />
+                        <label asp-for="NationalID">National ID</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="FullName" class="form-control" placeholder="Name" />
+                        <label asp-for="FullName">Full Name</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="UserName" class="form-control" placeholder="Username" />
+                        <label asp-for="UserName">Username</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="Email" class="form-control" placeholder="Email" />
+                        <label asp-for="Email">Email Address</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <input asp-for="BirthDate" class="form-control" placeholder="DOB" type="date" />
+                        <label asp-for="BirthDate">Date of Birth</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <select asp-for="Gender" class="form-select">
+                            <option value="">Select gender</option>
+                            <option value="@MedCore.Model.Enums.Gender.Male">Male</option>
+                            <option value="@MedCore.Model.Enums.Gender.Female">Female</option>
+                        </select>
+                        <label asp-for="Gender">Gender</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <select asp-for="BloodType" class="form-select" asp-items="Html.GetEnumSelectList<MedCore.Model.Enums.BloodType>()"></select>
+                        <label asp-for="BloodType">Blood Type</label>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="mb-3 border-bottom pb-2 text-muted"><i class="bi bi-clipboard2-pulse me-2"></i>Medical Info (Optional)</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="Allergies" class="form-control" placeholder="Allergies" />
+                        <label asp-for="Allergies">Known Allergies</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="Chronic" class="form-control" placeholder="Chronic" />
+                        <label asp-for="Chronic">Chronic Conditions</label>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="mb-3 border-bottom pb-2 text-muted"><i class="bi bi-shield-lock me-2"></i>Security</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="Password" class="form-control" placeholder="Password" />
+                        <label asp-for="Password">Password</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm" />
+                        <label asp-for="ConfirmPassword">Confirm Password</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm">
+                    <i class="bi bi-person-plus-fill me-2"></i> Register as Patient
+                </button>
+            </div>
+        </form>
+
+        <p class="text-center mt-4 mb-0" data-aos="fade-in" data-aos-delay="200">
+            Already have an account?
+            <a asp-action="Login" class="text-decoration-none fw-bold ms-1">Sign In</a>
+        </p>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,50 @@
+@model ViewModel.Doctor.ConsultationVM
+
+@{
+    ViewData["Title"] = "Consultation Room";
+    var doctorEmail = ViewBag.DoctorEmail as string;
+}
+
+<h2 class="mb-3">Consultation Room</h2>
+
+<form asp-action="AddPrescription" asp-route-doctorEmail="@doctorEmail" method="post" class="mc-card p-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="AppointmentId" class="form-label">Appointment</label>
+        <select asp-for="AppointmentId" class="form-select">
+            <option value="">Select appointment</option>
+            @foreach (var appt in Model.OpenAppointments)
+            {
+                <option value="@appt.AppointmentId">@appt.PatientName - @appt.AppointmentDate.ToString("dd MMM hh:mm tt")</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MedicationId" class="form-label">Medication</label>
+        <select asp-for="MedicationId" class="form-select">
+            <option value="">Select medication</option>
+            @foreach (var med in Model.Medications)
+            {
+                <option value="@med.Id">@med.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Dosage" class="form-label"></label>
+        <input asp-for="Dosage" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Frequency" class="form-label"></label>
+        <input asp-for="Frequency" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Save Prescription</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

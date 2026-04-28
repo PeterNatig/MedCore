@@ -7,10 +7,10 @@ namespace MedCore.Model
 {
     public class Appointment : BaseEntity
     {
-        public int PatientId { get; set; }
+        public string PatientId { get; set; }
         public Patient Patient { get; set; }
 
-        public int ScheduleId { get; set; }
+        public string ScheduleId { get; set; }
         public DoctorSchedule DoctorSchedule { get; set; }
 
         public AppointmentStatus Status { get; set; }

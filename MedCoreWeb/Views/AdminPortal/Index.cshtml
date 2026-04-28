@@ -1,0 +1,22 @@
+@model ViewModel.Admin.AdminDashboardVM
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    ViewData["AdminTitle"] = "Admin Dashboard";
+    ViewData["AdminSubtitle"] = "Overview of platform health and quick actions.";
+    ViewData["AdminBreadcrumb"] = "Admin / Dashboard";
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="mc-quick blue"><small>Specialties</small><h3>@Model.SpecialtiesCount</h3></div></div>
+    <div class="col-md-4"><div class="mc-quick purple"><small>Doctors</small><h3>@Model.DoctorsCount</h3></div></div>
+    <div class="col-md-4"><div class="mc-quick green"><small>Patients</small><h3>@Model.PatientsCount</h3></div></div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-3"><a asp-action="Specialties" class="mc-admin-link"><i class="bi bi-heart-pulse"></i><span>Manage Specialties</span></a></div>
+    <div class="col-md-3"><a asp-action="Medications" class="mc-admin-link"><i class="bi bi-capsule"></i><span>Manage Medications</span></a></div>
+    <div class="col-md-3"><a asp-action="Accounts" class="mc-admin-link"><i class="bi bi-person-plus"></i><span>Create Accounts</span></a></div>
+    <div class="col-md-3"><a asp-action="OperateDoctor" class="mc-admin-link"><i class="bi bi-clipboard2-pulse"></i><span>Operate as Doctor</span></a></div>
+    <div class="col-md-3"><a asp-action="OperatePatient" class="mc-admin-link"><i class="bi bi-journal-medical"></i><span>Operate as Patient</span></a></div>
+</div>

@@ -1,0 +1,330 @@
+@{
+    ViewData["Title"] = "AI Health Assistant";
+    var patientEmail = ViewBag.PatientEmail as string;
+}
+
+<div class="mc-hero mb-4" data-aos="fade-in">
+    <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3 text-white" style="width: 56px; height: 56px; background: linear-gradient(135deg, var(--mc-primary), var(--mc-accent)); font-size: 1.5rem;">
+            <i class="bi bi-robot"></i>
+        </div>
+        <div>
+            <h2 class="mb-1">MedCore AI Assistant</h2>
+            <p class="text-muted mb-0">Ask for medical guidance, bookings, or doctor workflow actions.</p>
+        </div>
+    </div>
+</div>
+
+<div class="mc-card p-0 d-flex flex-column border-primary border-opacity-25 shadow-sm rounded-4 overflow-hidden" style="height: 70vh; max-height: 800px;" data-aos="fade-up">
+    
+    <!-- Chat Header -->
+    <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center shadow-sm" style="z-index: 10;">
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" type="button" data-bs-toggle="offcanvas" data-bs-target="#historyOffcanvas" title="View Chat History">
+                <i class="bi bi-list fs-5 text-primary"></i>
+            </button>
+            <div>
+                <h6 class="mb-0 fw-bold text-dark" id="currentChatTitle">New Conversation</h6>
+                <small class="text-success"><i class="bi bi-circle-fill small me-1" style="font-size: 8px;"></i>AI Agent Online</small>
+            </div>
+        </div>
+        <button id="newChatBtn" class="btn btn-primary rounded-pill px-4 shadow-sm fw-medium transition-all hover-lift">
+            <i class="bi bi-plus-lg me-1"></i> New Chat
+        </button>
+    </div>
+
+    <!-- Chat messages area -->
+    <div id="chatMessages" class="flex-grow-1 p-4 overflow-auto d-flex flex-column gap-3" style="background: var(--mc-bg);">
+        <div class="d-flex justify-content-start default-msg mt-3">
+            <div class="p-4 rounded-4 shadow-sm bg-white border border-primary border-opacity-10 position-relative" style="max-width: 80%; border-bottom-left-radius: 4px !important;">
+                <div class="position-absolute top-0 start-0 translate-middle ms-4 mt-1 bg-primary rounded-circle d-flex align-items-center justify-content-center border border-white border-2 shadow-sm" style="width: 28px; height: 28px;">
+                    <i class="bi bi-robot text-white small"></i>
+                </div>
+                <h6 class="fw-bold text-primary mb-3"><i class="bi bi-stars me-2"></i>MedCore AI Assistant</h6>
+                <p class="mb-0 text-dark" style="line-height: 1.6;">Hello! I am your MedCore AI assistant. I can help you with:<br/>
+                <span class="d-inline-block mt-2 px-2 py-1 bg-light rounded text-muted small"><i class="bi bi-search me-2 text-primary"></i>Symptom analysis</span><br/>
+                <span class="d-inline-block mt-2 px-2 py-1 bg-light rounded text-muted small"><i class="bi bi-person-badge me-2 text-success"></i>Finding the right specialist</span><br/>
+                <span class="d-inline-block mt-2 px-2 py-1 bg-light rounded text-muted small"><i class="bi bi-calendar-check me-2 text-warning"></i>Booking appointments with doctors</span><br/>
+                <span class="d-inline-block mt-2 px-2 py-1 bg-light rounded text-muted small"><i class="bi bi-heart-pulse me-2 text-info"></i>Medical-only guidance and meal recommendations for illness</span><br/>
+                <br/>Please describe what you're feeling, and let's get started!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input area -->
+    <div class="p-4 bg-white border-top shadow-sm" style="z-index: 10;">
+        <div class="input-group input-group-lg shadow-sm rounded-pill p-1 border">
+            <input type="text" id="chatInput" class="form-control border-0 rounded-pill bg-transparent px-4 shadow-none" placeholder="Message the AI Assistant..." style="font-size: 0.95rem;" />
+            <button id="sendBtn" class="btn btn-primary rounded-pill px-4 d-flex align-items-center justify-content-center" style="width: 60px;">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </div>
+        <div class="text-center mt-2">
+            <small class="text-muted" style="font-size: 0.75rem;">AI can make mistakes. Always verify clinical information with a doctor.</small>
+        </div>
+    </div>
+</div>
+
+<!-- Offcanvas History Panel -->
+<div class="offcanvas offcanvas-start border-0 shadow-lg rounded-end-4" tabindex="-1" id="historyOffcanvas" aria-labelledby="historyOffcanvasLabel" style="width: 340px;">
+    <div class="offcanvas-header border-bottom bg-light">
+        <h5 class="offcanvas-title fw-bold text-dark d-flex align-items-center" id="historyOffcanvasLabel">
+            <i class="bi bi-clock-history me-2 text-primary"></i>Chat History
+        </h5>
+        <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0 d-flex flex-column bg-white">
+        <div id="historyPanel" class="flex-grow-1 overflow-auto p-3 d-flex flex-column gap-2">
+            <!-- History items injected here -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const historyPanel = document.getElementById('historyPanel');
+        const newChatBtn = document.getElementById('newChatBtn');
+        const currentChatTitle = document.getElementById('currentChatTitle');
+        
+        // Ensure offcanvas can be closed programmatically
+        let historyOffcanvas = null;
+        document.addEventListener("DOMContentLoaded", function(){
+            historyOffcanvas = new bootstrap.Offcanvas(document.getElementById('historyOffcanvas'));
+        });
+        
+        let chatSessions = [];
+        let currentSessionId = 0; // 0 means new unsaved session
+        let currentSessionMessages = [];
+
+        async function loadSessions() {
+            try {
+                const response = await fetch('/api/ChatApi/sessions');
+                if (response.ok) {
+                    chatSessions = await response.json();
+                    renderHistoryPanel();
+                    if (chatSessions.length > 0) {
+                        await switchSession(chatSessions[0].id);
+                    } else {
+                        createNewSession();
+                    }
+                }
+            } catch(e) { console.error("Failed to load sessions"); }
+        }
+
+        function createNewSession() {
+            currentSessionId = 0;
+            currentSessionMessages = [];
+            currentChatTitle.innerText = "New Conversation";
+            
+            chatSessions = chatSessions.filter(s => s.id !== 0);
+            chatSessions.unshift({ id: 0, title: 'New Conversation', messages: [] });
+            
+            renderHistoryPanel();
+            renderChatArea();
+            if (historyOffcanvas) historyOffcanvas.hide();
+        }
+
+        async function switchSession(id) {
+            currentSessionId = id;
+            if (id === 0) {
+                currentSessionMessages = [];
+                currentChatTitle.innerText = "New Conversation";
+                renderHistoryPanel();
+                renderChatArea();
+                if (historyOffcanvas) historyOffcanvas.hide();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/ChatApi/sessions/${id}/messages`);
+                if (response.ok) {
+                    currentSessionMessages = await response.json();
+                    const sessionInfo = chatSessions.find(s => s.id === id);
+                    currentChatTitle.innerText = sessionInfo ? sessionInfo.title : "Conversation";
+                    
+                    renderHistoryPanel();
+                    renderChatArea();
+                    if (historyOffcanvas) historyOffcanvas.hide();
+                }
+            } catch(e) { console.error("Failed to load messages"); }
+        }
+
+        function renderHistoryPanel() {
+            historyPanel.innerHTML = '';
+            if (chatSessions.length === 0) {
+                historyPanel.innerHTML = `
+                    <div class="text-center text-muted mt-5">
+                        <i class="bi bi-chat-square-text fs-1 opacity-50 mb-3 d-block"></i>
+                        <p class="small">No previous chats found.</p>
+                    </div>`;
+                return;
+            }
+
+            chatSessions.forEach(session => {
+                const btn = document.createElement('button');
+                const isCurrent = session.id === currentSessionId;
+                btn.className = `btn w-100 text-start py-3 px-3 rounded-4 border-0 transition-all ${isCurrent ? 'bg-primary text-white shadow' : 'bg-light text-dark hover-bg-gray'}`;
+                
+                const title = session.title || 'Conversation';
+                const date = session.updatedAt ? new Date(session.updatedAt).toLocaleDateString() : '';
+                
+                btn.innerHTML = `
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi ${isCurrent ? 'bi-chat-dots-fill' : 'bi-chat'} fs-5 ${isCurrent ? 'text-white' : 'text-primary'}"></i>
+                        <div class="overflow-hidden">
+                            <div class="fw-medium text-truncate mb-1" style="font-size: 0.95rem;">${title}</div>
+                            ${date ? `<small class="d-block ${isCurrent ? 'text-white opacity-75' : 'text-muted'}" style="font-size: 0.75rem;">${date}</small>` : ''}
+                        </div>
+                    </div>
+                `;
+                btn.onclick = () => switchSession(session.id);
+                historyPanel.appendChild(btn);
+            });
+        }
+
+        function renderChatArea() {
+            chatMessages.innerHTML = '';
+            
+            if (currentSessionMessages.length === 0) {
+                chatMessages.innerHTML = `
+                    <div class="d-flex justify-content-start default-msg mt-3">
+                        <div class="p-4 rounded-4 shadow-sm bg-white border border-primary border-opacity-10 position-relative" style="max-width: 80%; border-bottom-left-radius: 4px !important;">
+                            <div class="position-absolute top-0 start-0 translate-middle ms-4 mt-1 bg-primary rounded-circle d-flex align-items-center justify-content-center border border-white border-2 shadow-sm" style="width: 28px; height: 28px;">
+                                <i class="bi bi-robot text-white small"></i>
+                            </div>
+                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-stars me-2"></i>MedCore AI Assistant</h6>
+                            <p class="mb-0 text-dark" style="line-height: 1.6;">Hello! I am your MedCore AI assistant. I can help you with:<br/>
+                            <span class="d-inline-block mt-2 px-2 py-1 bg-light rounded text-muted small"><i class="bi bi-search me-2 text-primary"></i>Symptom analysis</span><br/>
+                            <span class="d-inline-block mt-2 px-2 py-1 bg-light rounded text-muted small"><i class="bi bi-person-badge me-2 text-success"></i>Finding the right specialist</span><br/>
+                            <span class="d-inline-block mt-2 px-2 py-1 bg-light rounded text-muted small"><i class="bi bi-calendar-check me-2 text-warning"></i>Booking appointments with doctors</span><br/>
+                            <span class="d-inline-block mt-2 px-2 py-1 bg-light rounded text-muted small"><i class="bi bi-heart-pulse me-2 text-info"></i>Medical-only guidance and meal recommendations for illness</span><br/>
+                            <br/>Please describe what you're feeling, and let's get started!</p>
+                        </div>
+                    </div>`;
+                return;
+            }
+
+            currentSessionMessages.forEach(msg => {
+                addMessageDOM(msg.content, msg.role === 'user');
+            });
+        }
+
+        function addMessageDOM(text, isUser) {
+            const div = document.createElement('div');
+            div.className = `d-flex ${isUser ? 'justify-content-end' : 'justify-content-start'} mb-4 position-relative`;
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `p-3 shadow-sm ${isUser ? 'bg-primary text-white' : 'bg-white border text-dark'}`;
+            msgDiv.style.maxWidth = '80%';
+            msgDiv.style.borderRadius = '16px';
+            
+            if (isUser) {
+                msgDiv.style.borderBottomRightRadius = '4px';
+                msgDiv.innerText = text;
+            } else {
+                msgDiv.style.borderBottomLeftRadius = '4px';
+                // Add AI avatar to incoming messages
+                const avatar = document.createElement('div');
+                avatar.className = 'position-absolute top-0 start-0 translate-middle ms-2 mt-2 bg-primary rounded-circle d-flex align-items-center justify-content-center border border-white border-2 shadow-sm';
+                avatar.style.width = '28px';
+                avatar.style.height = '28px';
+                avatar.innerHTML = '<i class="bi bi-robot text-white" style="font-size: 0.75rem;"></i>';
+                div.appendChild(avatar);
+                msgDiv.style.marginLeft = '10px';
+                
+                msgDiv.innerHTML = typeof marked !== 'undefined' ? marked.parse(text) : text.replace(/\n/g, '<br>');
+            }
+
+            div.appendChild(msgDiv);
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Initialize from DB
+        loadSessions();
+
+        newChatBtn.addEventListener('click', createNewSession);
+
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            if (currentSessionMessages.length === 0) {
+                const defaultMsg = chatMessages.querySelector('.default-msg');
+                if (defaultMsg) defaultMsg.remove();
+                
+                const generatedTitle = text.substring(0, 30) + (text.length > 30 ? '...' : '');
+                currentChatTitle.innerText = generatedTitle;
+                
+                // Update local session title immediately for UX
+                const session = chatSessions.find(s => s.id === currentSessionId);
+                if(session) session.title = generatedTitle;
+                renderHistoryPanel();
+            }
+
+            addMessageDOM(text, true);
+            currentSessionMessages.push({ role: 'user', content: text });
+            
+            chatInput.value = '';
+            chatInput.disabled = true;
+            sendBtn.disabled = true;
+
+            const originalBtnHtml = sendBtn.innerHTML;
+            sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+            try {
+                const historyToSend = currentSessionMessages.slice(0, -1);
+
+                const response = await fetch('/api/ChatApi/patient', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        sessionId: currentSessionId, 
+                        message: text, 
+                        title: currentChatTitle.innerText, // Send title to DB
+                        history: historyToSend 
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (currentSessionId === 0 && data.sessionId) {
+                        currentSessionId = data.sessionId;
+                        loadSessions(); // Reload titles and ids securely from DB
+                    }
+
+                    if (data.success) {
+                        addMessageDOM(data.reply, false);
+                        currentSessionMessages.push({ role: 'assistant', content: data.reply });
+                    } else {
+                        addMessageDOM('Error: ' + data.errorMessage, false);
+                    }
+                } else {
+                    addMessageDOM('Error communicating with the server.', false);
+                }
+            } catch (err) {
+                addMessageDOM('A network error occurred.', false);
+            } finally {
+                chatInput.disabled = false;
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = originalBtnHtml;
+                chatInput.focus();
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .hover-bg-gray:hover { background-color: var(--bs-gray-200) !important; }
+        .hover-lift { transition: transform 0.2s ease; }
+        .hover-lift:hover { transform: translateY(-2px); }
+    </style>
+}

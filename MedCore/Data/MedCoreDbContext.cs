@@ -1,4 +1,5 @@
-﻿using MedCore.Model;
+using MedCore.Model;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -6,9 +7,9 @@ using System.Text;
 
 namespace MedCore.Data
 {
-    public class MedCoreDbContext : DbContext
+    public class MedCoreDbContext : IdentityDbContext<User>
     {
-        public DbSet<User> Users { get; set; }
+        public MedCoreDbContext(DbContextOptions<MedCoreDbContext> options):base(options) { }
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
@@ -16,15 +17,12 @@ namespace MedCore.Data
         public DbSet<Medication> Medications { get; set; }
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<Specialty> Specialties { get; set; }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=MedCore;Integrated Security=True;TrustServerCertificate=True;");
-            base.OnConfiguring(optionsBuilder);
-        }
+        public DbSet<ChatSession> ChatSessions { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(MedCoreDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(MedCoreDbContext).Assembly);
         }
         public override int SaveChanges()
         {
@@ -40,15 +38,18 @@ namespace MedCore.Data
 
         private void UpdateLastModified()
         {
-            var entries = ChangeTracker.Entries<BaseEntity>();
-            var utcNow = DateTime.Now;
+            var utcNow = DateTime.UtcNow;
 
-            foreach (var entry in entries)
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
             {
-                if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
-                {
-                    entry.Entity.LastModified = utcNow;
-                }
+                entry.Entity.LastModified = utcNow;
+            }
+
+            foreach (var entry in ChangeTracker.Entries<User>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
+            {
+                entry.Entity.LastModified = utcNow;
             }
         }
     }

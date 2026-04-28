@@ -1,0 +1,57 @@
+@model ViewModel.Admin.MedicationManagementVM
+
+@{
+    ViewData["Title"] = "Manage Medications";
+    ViewData["AdminTitle"] = "Manage Medications";
+    ViewData["AdminSubtitle"] = "Add and manage the medication catalog for prescriptions.";
+    ViewData["AdminBreadcrumb"] = "Admin / Medications";
+}
+
+<div class="mc-card p-3 mb-4">
+    <h5>Add Medication</h5>
+    <form asp-action="AddMedication" method="post" class="row g-3">
+        @Html.AntiForgeryToken()
+        <div class="col-md-4">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" placeholder="Amoxicillin" />
+        </div>
+        <div class="col-md-5">
+            <label asp-for="GenericName" class="form-label"></label>
+            <input asp-for="GenericName" class="form-control" placeholder="Amoxicillin trihydrate" />
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Add</button>
+        </div>
+    </form>
+</div>
+
+<div class="mc-card p-3">
+    <h5>All Medications</h5>
+    @if (!Model.Medications.Any())
+    {
+        <p class="text-muted">No medications added yet.</p>
+    }
+    else
+    {
+    <table class="table mc-table">
+        <thead><tr><th>Brand Name</th><th>Generic Name</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var medication in Model.Medications)
+        {
+            <tr>
+                <td>@medication.Name</td>
+                <td>@medication.GenericName</td>
+                <td class="text-end">
+                    <form asp-action="DeleteMedication" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="medicationId" value="@medication.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete this medication?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    }
+</div>

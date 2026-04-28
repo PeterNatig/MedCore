@@ -1,4 +1,4 @@
-﻿using MedCore.Model;
+using MedCore.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -14,7 +14,7 @@ namespace MedCore.Configuration
             builder.HasKey(e => e.Id);
             builder.Property(e => e.Version).IsRowVersion();
             builder.Property(e => e.IsDeleted).HasDefaultValue(false);
-            builder.Property<DateTime>("CreatedAt").HasDefaultValueSql("GETDATE()");
+            builder.Property<DateTime>("CreatedAt").HasDefaultValueSql("GETUTCDATE()");
             builder.HasQueryFilter(e => !e.IsDeleted);
 
         }

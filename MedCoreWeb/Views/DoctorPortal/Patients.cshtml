@@ -1,0 +1,61 @@
+@model ViewModel.Doctor.DoctorPatientsVM
+
+@{
+    ViewData["Title"] = "Patient Records";
+    var doctorEmail = ViewBag.DoctorEmail as string;
+}
+
+<h2 class="mb-3">Medical Records</h2>
+
+<div class="mc-card p-3">
+@if (!Model.Patients.Any())
+{
+    <p class="text-muted">No patient records found.</p>
+}
+else
+{
+<table class="table mc-table">
+    <thead>
+        <tr><th>Patient</th><th>National ID</th><th>Appointment</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Patients)
+        {
+            <tr>
+                <td>@item.PatientName</td>
+                <td>@item.NationalId</td>
+                <td>
+                    @item.AppointmentDate.ToString("dd MMM yyyy hh:mm tt")
+                    @if (item.IsPast)
+                    {
+                        <span class="badge bg-secondary ms-2">Past</span>
+                    }
+                </td>
+                <td>
+                    <span class="badge @(item.Status == "Pending" ? "bg-warning text-dark" :
+                                         item.Status == "Confirmed" ? "bg-primary" :
+                                         item.Status == "Completed" ? "bg-success" : "bg-secondary")">
+                        @item.Status
+                    </span>
+                </td>
+                <td>
+                    @if (item.Status == "Pending")
+                    {
+                        <form asp-action="ConfirmAppointment" asp-route-doctorEmail="@doctorEmail" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
+                            <button type="submit" class="btn btn-sm btn-success">Confirm</button>
+                        </form>
+                        <form asp-action="RejectAppointment" asp-route-doctorEmail="@doctorEmail" method="post" class="d-inline ms-1">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+}
+</div>
