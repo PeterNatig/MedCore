@@ -24,13 +24,8 @@ namespace MedCoreWeb
             });
             builder.Services.AddDbContextPool<MedCoreDbContext>(options =>
             {
-                //options.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
-                options.UseSqlServer(builder.Configuration.GetConnectionString("monster"),
-                    sqloptions => sqloptions.EnableRetryOnFailure(
-                        maxRetryCount: 5,
-                        maxRetryDelay: TimeSpan.FromSeconds(30),
-                        errorNumbersToAdd: null
-                        ));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
+                
             });
             builder.Services.AddIdentity<User, IdentityRole>(options =>
             {
